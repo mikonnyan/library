@@ -1,3 +1,4 @@
+本项目为基于SSM的图书馆管理系统。
 ### 如何使用
 配置将book.sql文件录入数据库，配置tomcat访问URL http://localhost:8080/index.jsp
 图书管理员 账号10001 密码 123
