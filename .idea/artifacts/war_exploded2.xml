@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="exploded-war" name="毕业设计:war exploded">
-    <output-path>$PROJECT_DIR$/out/artifacts/_war_exploded</output-path>
+  <artifact type="exploded-war" name="war exploded2">
+    <output-path>$PROJECT_DIR$/out/artifacts/war_exploded2</output-path>
     <root id="root">
       <element id="javaee-facet-resources" facet="图书管理系统/web/Web" />
       <element id="directory" name="WEB-INF">
