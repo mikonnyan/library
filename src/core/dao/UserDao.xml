@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+Mapper代理开发规范
+1.Mapper接口的名称和对应的Mapper.xml映射文件的名称必须一致
+2.Mapper.xml文件和namespace与Mapper接口的类路径相同(即接口文件和映射文件需要放在同一个包中)
+3.Mapper接口中的方法名和Mapper.xml中定义的每个执行语句的id相同
+4.Mapper接口中的输入参数类型和Mapper.xml中定义的每个sql的parameterType类型相同
+5.Mapper接口方法的输出参数类型要和Mapper.xml中定义的每个sql的resultType的类型相同
+-->
+<mapper namespace="core.dao.UserDao">
+    <!--根据密码和账号查询客户信息-->
+    <select id="findUser" parameterType="user" resultType="user">
+        select * from user where user_code =#{user_code} and user_password=#{user_password}
+    </select>
+    <!--添加客户-->
+    <insert id="creatUser" parameterType="user">
+        insert into user(
+        user_code,
+        user_name,
+        user_password,
+        user_level,
+        user_over
+        )values(
+         #{user_code},
+        #{user_name},
+        #{user_password},
+        "0",
+        "0"
+        )
+    </insert>
+    <select id="isHaveUser" parameterType="Integer" resultType="user">
+        select * from user where user_code = #{usercode}
+    </select>
+    <select id="findUserId" parameterType="String" resultType="Integer">
+        select user_id from user where user_code = #{usercode}
+    </select>
+    <!--密码更改-->
+    <update id="changePasswd" parameterType="Repasswd" >
+        update user
+        <set>
+            user_password = #{newPasswd},
+        </set>
+        where user_code=#{user_code} and user_password = #{user_password}
+    </update>
+    <!--查看密码是否修改成功-->
+    <select id="showPasswd" parameterType="Repasswd" resultType="String">
+        select user_password from user where user_code = #{user_code}
+    </select>
+    <!--通过用户卡号查找用户信息-->
+    <select id="findUserByUserList" parameterType="user" resultType="user">
+        select * from user
+        <where>
+            <if test="user_code!=null">
+                 user_code =#{user_code}
+            </if>
+        </where>
+    </select>
+    <!--查询User总数量-->
+    <select id="selectUserCount" parameterType="Integer" resultType="Integer">
+        select count(*) from user where user_code=#{user_code}
+    </select>
+    <!--findUserByUsercode-->
+    <select id="findUserByUsercode" parameterType="Integer" resultType="user">
+        select * from user where user_code = #{user_code}
+    </select>
+    <!--更新用户数据-->
+    <update id="userUpDate" parameterType="user">
+        update user
+        <set>
+            <if test="user_name!=null">
+                user_name = #{user_name},
+            </if>
+            <if test="user_password!=null">
+                user_password = #{user_password},
+            </if>
+            <if test="user_level!=null">
+                user_level = #{user_level},
+            </if>
+        </set>
+        where user_code=#{user_code}
+    </update>
+    <!--删除用户-->
+    <delete id="deleteUser" parameterType="Integer">
+        delete from user where user_code=#{user_code}
+    </delete>
+</mapper>

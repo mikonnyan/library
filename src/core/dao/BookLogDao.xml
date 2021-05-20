@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+Mapper代理开发规范
+1.Mapper接口的名称和对应的Mapper.xml映射文件的名称必须一致
+2.Mapper.xml文件和namespace与Mapper接口的类路径相同(即接口文件和映射文件需要放在同一个包中)
+3.Mapper接口中的方法名和Mapper.xml中定义的每个执行语句的id相同
+4.Mapper接口中的输入参数类型和Mapper.xml中定义的每个sql的parameterType类型相同
+5.Mapper接口方法的输出参数类型要和Mapper.xml中定义的每个sql的resultType的类型相同
+-->
+<mapper namespace="core.dao.BookLogDao">
+    <!--SQL片段-->
+    <!--<sql id="selectBookListWhere">-->
+        <!--<where>-->
+            <!--<if test="name!=null">-->
+                <!--name like "%"#{name}"%"-->
+            <!--</if>-->
+            <!--<if test="id!=null">-->
+                <!--and id =#{id}-->
+            <!--</if>-->
+            <!--<if test="press!=null">-->
+                <!--and press =#{press}-->
+            <!--</if>-->
+            <!--<if test="flname!=null">-->
+                <!--and flname =#{flname}-->
+            <!--</if>-->
+        <!--</where>-->
+    <!--</sql>-->
+    <select id="selectBookLogList" parameterType="BookLog" resultType="BookLog">
+        SELECT
+        *
+        FROM borrowlog b
+        LEFT JOIN library_book l ON  l.isbn = b.isbn
+        <!--<include refid="selectBookListWhere"/>-->
+        <!-- 执行分页查询  -->
+        <if test="start!=null and rows !=null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <!--查询总数-->
+    <select id="selectBookLogListCount" parameterType="Integer" resultType="Integer">
+        select count(*) from borrowlog
+        <!--<include refid="selectBookListWhere"/>-->
+    </select>
+    <!--删除记录-->
+    <delete id="deleteBookLog" parameterType="Integer">
+        delete from borrowlog where id=#{id}
+    </delete>
+</mapper>

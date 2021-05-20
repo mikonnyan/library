@@ -1,0 +1,165 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page trimDirectiveWhitespaces="true"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="mikon" uri="http://mikon.com/common/"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() 
+	                   + ":" + request.getServerPort() + path + "/";
+%>
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>客户管理-BootCRM</title>
+	<!-- 引入css样式文件 -->
+	<%--&lt;%&ndash;tip&ndash;%&gt;--%>
+	<%--<link herf="css/tip.css" rel="stylesheet"/>--%>
+	<!-- Bootstrap Core CSS -->
+	<link href="<%=basePath%>css/bootstrap.min.css" rel="stylesheet" />
+	<!-- MetisMenu CSS -->
+	<link href="<%=basePath%>css/metisMenu.min.css" rel="stylesheet" />
+	<!-- DataTables CSS -->
+	<link href="<%=basePath%>css/dataTables.bootstrap.css" rel="stylesheet" />
+	<!-- Custom CSS -->
+	<link href="<%=basePath%>css/sb-admin-2.css" rel="stylesheet" />
+	<!-- Custom Fonts -->
+	<link href="<%=basePath%>css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+	<link href="<%=basePath%>css/boot-crm.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="wrapper">
+  <!-- 导航栏部分 -->
+  <nav class="navbar navbar-default navbar-static-top" role="navigation"
+		 style="margin-bottom: 0">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="<%=basePath%>toBook.action">图书管理系统</a>
+	</div>
+	<!-- 导航栏右侧图标部分 -->
+	<ul class="nav navbar-top-links navbar-right">
+
+		<!-- 用户信息和系统设置 start -->
+		<li class="dropdown">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#"> 
+				<i class="fa fa-user fa-fw"></i>
+				<i class="fa fa-caret-down"></i>
+			</a>
+			<ul class="dropdown-menu dropdown-user">
+				<li><a href="#"><i class="fa fa-user fa-fw"></i>
+				               用户：${USER_SESSION.user_name}
+				    </a>
+				</li>
+				<li><a href="<%=basePath%>repasswd.action"><i class="fa fa-gear fa-fw"></i> 密码更改</a></li>
+				<li class="divider"></li>
+				<li>
+					<a href="${pageContext.request.contextPath }/logout.action">
+					<i class="fa fa-sign-out fa-fw"></i>退出登录
+					</a>
+				</li>
+			</ul> 
+		</li>
+		<!-- 用户信息和系统设置结束 -->
+	</ul>
+	<!-- 左侧显示列表部分 start-->
+	<div class="navbar-default sidebar" role="navigation">
+		<div class="sidebar-nav navbar-collapse">
+			<ul class="nav" id="side-menu">
+				<li>
+					<a href="${pageContext.request.contextPath }/book.action" class="active">
+						<i class="fa fa-edit fa-fw"></i> 图书查询
+					</a>
+				</li>
+				<li>
+					<a href="${pageContext.request.contextPath }/myBorrowBook.action?reader=${USER_SESSION.user_code}">
+						<i class="fa fa-dashboard fa-fw" ></i> 个人借阅
+						<%--<a href="${pageContext.request.contextPath }/borrowBook.action?reader=${USER_SESSION.user_name}">--%>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!-- 左侧显示列表部分 end--> 
+  </nav>
+    <!-- 客户列表查询部分  start-->
+	<div id="page-wrapper">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">用户密码更改</h1>
+			</div>
+			<div style="width: 60%;margin-left: 20%;margin-top: 10%">
+				<form class="form-horizontal" method="post" action="${pageContext.request.contextPath}/changePasswd.action"  id="repasswd" >
+					<div class="form-group">
+						<label for="oldPasswd" class="col-sm-2 control-label">旧密码</label>
+						<div class="col-sm-10">
+							<input  class="form-control" type="password" id="oldPasswd" name="user_password" placeholder="输入旧密码">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="newPasswd" class="col-sm-2 control-label">新密码</label>
+						<div class="col-sm-10">
+							<input type="password" class="form-control"  id="newPasswd" name="newPasswd" placeholder="输入新密码" placeholder="Password">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="reNewPasswd" class="col-sm-2 control-label">确认新密码</label>
+						<div class="col-sm-10">
+							<input type="password" class="form-control" id="reNewPasswd" name="reNewPasswd" placeholder="再次输入新密码">
+						</div>
+					</div>
+					<p id="tishi" style="margin-left: 10%;position: absolute"></p><br/>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<input type="submit" value="提交" class="btn btn-default">
+						</div>
+					</div>
+				</form>
+
+
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+	</div>
+
+</div>
+<!-- 引入js文件 -->
+<!-- jQuery -->
+<script src="<%=basePath%>js/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="<%=basePath%>js/bootstrap.min.js"></script>
+<!-- Metis Menu Plugin JavaScript -->
+<script src="<%=basePath%>js/metisMenu.min.js"></script>
+<!-- DataTables JavaScript -->
+<script src="<%=basePath%>js/jquery.dataTables.min.js"></script>
+<script src="<%=basePath%>js/dataTables.bootstrap.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="<%=basePath%>js/sb-admin-2.js"></script>
+<!-- 编写js代码 -->
+<script>
+    function mySubmit(flag){
+        return flag;
+    }
+
+    $(document).keyup(function () {
+        if($("#newPasswd").val()!=$("#reNewPasswd").val()&&$("#newPasswd").val()!=""&&$("#reNewPasswd").val()!=""&&$("#newPasswd").val().length==$("#reNewPasswd").val().length){
+            $("#tishi").text("提示:两次输入的新密码不同，请检查!");
+        }
+        else {
+            $("#tishi").text("");
+        }
+    })
+
+    $("#repasswd").submit(function () {
+        if($("#oldPasswd").val()==''||$("#newPasswd").val()==''||$("#reNewPasswd").val()==''){
+            $("#tishi").text("提示:请填写完整!");
+            return mySubmit(false);
+        }
+        else if($("#newPasswd").val()!=$("#reNewPasswd").val()){
+            $("#tishi").text("提示:两次输入的新密码不同，请检查!");
+            return mySubmit(false);
+        }
+    })
+</script>
+</body>
+</html>

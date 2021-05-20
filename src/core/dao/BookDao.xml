@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+Mapper代理开发规范
+1.Mapper接口的名称和对应的Mapper.xml映射文件的名称必须一致
+2.Mapper.xml文件和namespace与Mapper接口的类路径相同(即接口文件和映射文件需要放在同一个包中)
+3.Mapper接口中的方法名和Mapper.xml中定义的每个执行语句的id相同
+4.Mapper接口中的输入参数类型和Mapper.xml中定义的每个sql的parameterType类型相同
+5.Mapper接口方法的输出参数类型要和Mapper.xml中定义的每个sql的resultType的类型相同
+-->
+<mapper namespace="core.dao.BookDao">
+    <!--SQL片段-->
+    <sql id="selectBookListWhere">
+        <where>
+            <if test="title!=null">
+                title like "%"#{title}"%"
+            </if>
+            <if test="isbn!=null">
+                and isbn =#{isbn}
+            </if>
+            <!--<if test="press!=null">-->
+                <!--and press =#{press}-->
+            <!--</if>-->
+            <!--<if test="flname!=null">-->
+                <!--and flname =#{flname}-->
+            <!--</if>-->
+        </where>
+    </sql>
+    <!--根据列别代码查询-->
+    <select id="selectBookList" parameterType="book" resultType="book">
+        SELECT
+        *
+        FROM library_book l
+        LEFT JOIN book_class c ON c.isbn = l.isbn
+        LEFT JOIN book_number n ON c.isbn=n.isbn
+        LEFT JOIN book_room r ON c.isbn=r.isbn
+        <where>
+            <if test="title!=null">
+                l.title  like "%"#{title}"%"
+            </if>
+            <if test="isbn!=null">
+                and l.isbn =#{isbn}
+            </if>
+
+        </where>
+        <!-- 执行分页查询  -->
+        <if test="start!=null and rows !=null">
+            limit  #{start},#{rows}
+        </if>
+    </select>
+
+    <select id="selectBookListCount" parameterType="book" resultType="Integer">
+        select count(*) from library_book
+        <include refid="selectBookListWhere"/>
+    </select>
+    <!--查询借阅图书-->
+    <select id="selectBorrowBookList" parameterType="user" resultType="book">
+        SELECT
+        *
+        FROM user_borrow b
+        LEFT JOIN library_book l ON  l.isbn = b.isbn
+        LEFT JOIN book_class c ON c.isbn = b.isbn
+        LEFT JOIN book_number n ON n.isbn=b.isbn
+        LEFT JOIN book_room r ON r.isbn=b.isbn
+        where b.usercode=#{user_code}
+
+        <if test="start!=null and rows !=null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <!--图书借阅生成-->
+    <insert id="setBorrowBook" parameterType="borrow">
+        insert into user_borrow(
+        usercode,
+        isbn,
+        start_time,
+        returntime,
+        state
+        )values (
+        #{usercode},
+        #{isbn},
+        #{time},
+        #{returntime},
+        '未逾期'
+        )
+    </insert>
+    <!--图书归还-->
+    <update id="returnBook" parameterType="borrow">
+        update book_number
+        <set>
+            nownumber=#{nownumber},
+            total_borrow=#{total_borrow},
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--查询读者借出书籍总数目-->
+    <select id="selectBorrowBookListCount" parameterType="Integer" resultType="Integer">
+        select count(*) from user_borrow where usercode=#{usercode}
+    </select>
+    <!--借阅图书记录设置-->
+    <insert id="borrowlogset" parameterType="borrow">
+        insert into borrowlog(
+        isbn,
+        user_code,
+        borrowtime,
+        returntime,
+        state,
+        operation
+        )values (
+        #{isbn},
+        #{usercode},
+        #{time},
+        #{returntime},
+        #{state},
+        '借阅'
+        )
+    </insert>
+    <!--归还图书记录设置-->
+    <insert id="returnlogset" parameterType="borrow">
+        insert into borrowlog(
+        isbn,
+        user_code,
+        borrowtime,
+        returntime,
+        state,
+        operation
+        )values (
+        #{isbn},
+        #{usercode},
+        #{time},
+        #{returntime},
+        #{state},
+        '归还'
+        )
+    </insert>
+    <!--通过图书ID查询归还时间-->
+    <select id="expirationTime" parameterType="Borrow" resultType="Borrow">
+        select * from user_borrow where isbn=#{isbn} and usercode=#{usercode}
+    </select>
+    <!--添加图书-->
+    <insert id="createBook" parameterType="addbook">
+        insert into library_book(
+        title,
+        subtitle,
+        pic,
+        author,
+        summary,
+        publisher,
+        pubplace,
+        page,
+        price,
+        binding,
+        isbn,
+        isbn10,
+        keyword,
+        edition,
+        impression,
+        pubdate,
+        language,
+        format,
+        cip
+        )values(
+        #{title},
+        #{subtitle},
+        #{pic},
+        #{author},
+        #{summary},
+        #{publisher},
+        #{pubplace},
+        #{page},
+        #{price},
+        #{binding},
+        #{isbn},
+        #{isbn10},
+        #{keyword},
+        #{edition},
+        #{impression},
+        #{pubdate},
+        #{language},
+        #{format},
+        #{cip}
+        )
+    </insert>
+    <!--通过书籍ID查询信息-->
+    <select id="getBookByIsbn" parameterType="String" resultType="book">
+        select * from library_book l
+        LEFT JOIN book_class c ON c.isbn = l.isbn
+        LEFT JOIN book_number n ON c.isbn=n.isbn
+        LEFT JOIN book_room r ON c.isbn=r.isbn
+        where l.isbn=#{isbn}
+    </select>
+    <!--更新书籍信息-->
+    <update id="updatebook" parameterType="book">
+        update library_book
+        <set>
+            <if test="title!=null">
+                title = #{title},
+            </if>
+            <if test="subtitle!=null">
+                subtitle = #{subtitle},
+            </if>
+            <if test="pic!=null">
+                pic = #{pic},
+            </if>
+            <if test="author!=null">
+                author=#{author},
+            </if>
+            <if test="summary!=null">
+                summary=#{summary},
+            </if>
+            <if test="publisher!=null">
+                publisher=#{publisher},
+            </if>
+            <if test="pubplace!=null">
+                pubplace=#{pubplace},
+            </if>
+            <if test="page!=null">
+                page=#{page},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="binding!=null">
+                binding=#{binding},
+            </if>
+            <if test="isbn10!=null">
+                isbn10=#{isbn10},
+            </if>
+            <if test="keyword!=null">
+                keyword=#{keyword},
+            </if>
+            <if test="edition!=null">
+                edition=#{edition},
+            </if>
+            <if test="impression!=null">
+            impression=#{impression},
+        </if>
+            <if test="pubdate!=null">
+                pubdate=#{pubdate},
+            </if>
+            <if test="language!=null">
+                language=#{language},
+            </if>
+            <if test="format!=null">
+                format=#{format},
+            </if>
+            <if test="cip!=null">
+                cip=#{cip},
+            </if>
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--删除图书-->
+    <delete id="deleteBook" parameterType="String">
+        delete from library_book where isbn=#{isbn}
+    </delete>
+    <!--addborrownumber-->
+    <!--更新借阅次数信息-->
+    <update id="addborrownumber" parameterType="BookBorrowNumber">
+        update borrownumber
+        <set>
+            <if test="number!=null">
+                number =#{number},
+            </if>
+
+        </set>
+        where bookid=#{bookid}
+    </update>
+    <!--创建书籍借阅次数-->
+    <insert id="creatBorrowBook" parameterType="BookBorrowNumber">
+        insert into borrownumber(
+        bookid,
+        number,
+        bookname
+        )values(
+        #{bookid},
+        #{number},
+        #{bookname}
+        )
+    </insert>
+    <!--查询借阅量最高的五本书籍-->
+    <select id="selectTopBook" parameterType="BookBorrowNumber" resultType="BookBorrowNumber">
+        select * from book_number b
+        LEFT JOIN library_book l ON l.isbn = b.isbn
+        ORDER BY total_borrow DESC limit #{rows} OFFSET #{start}
+        <!--<if test="start!=null and rows !=null">-->
+            <!---->
+    <!--</if>-->
+    </select>
+    <!--创建图书位置信息-->
+    <insert id="creatBookRoom" parameterType="bookroom">
+        insert into book_room(
+        isbn,
+        room,
+        bookrack
+        )values(
+        #{isbn},
+        #{room},
+        #{bookrack}
+        )
+    </insert>
+    <!--创建图书分类信息-->
+    <insert id="creatBookgenre" parameterType="bookroom">
+        insert into book_class(
+        isbn,
+        genre,
+        categories
+        )values(
+        #{isbn},
+        #{genre},
+        #{categories}
+        )
+    </insert>
+    <!--通过isbn码查询图书数量-->
+    <select id="selectBookNumberByISBN" parameterType="String" resultType="booknumber">
+        select * from book_number where isbn=#{isbn}
+    </select>
+    <!--通过isbn码创建图书数量数据-->
+    <insert id="creatBookNumber" parameterType="addbook" >
+        insert into book_number(
+        isbn,
+        number,
+        nownumber,
+        total_borrow
+        )values(
+        #{isbn},
+        #{number},
+        #{number},
+        '0'
+        )
+    </insert>
+    <!--通过isbn码更改图书数量-->
+    <update id="upDataBookNumber" parameterType="book">
+        update book_number
+        <set>
+            <if test="number!=null">
+                number = #{number},
+            </if>
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--通过isbn码更改图书分类数据-->
+    <update id="upDataBookRoom" parameterType="book">
+        update book_room
+        <set>
+            <if test="room!=null">
+                room = #{room},
+            </if>
+            <if test="bookrack!=null">
+                bookrack = #{bookrack},
+            </if>
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--通过isbn码更改图书分类数据-->
+    <update id="upDataBookgenre" parameterType="book">
+        update book_class
+        <set>
+            <if test="categories!=null">
+                categories = #{categories},
+            </if>
+            <if test="genre!=null">
+                genre = #{genre},
+            </if>
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--通过isbn获取图书数量-->
+    <select id="getBookNowNumber" parameterType="String" resultType="BookNumber">
+        select * from book_number where isbn=#{isbn}
+    </select>
+    <!--更改书籍总借阅量与在馆图书数量-->
+    <update id="changeBookBorrowNumber" parameterType="BookNumber">
+        update book_number
+        <set>
+            <if test="nownumber!=null">
+                nownumber = #{nownumber},
+            </if>
+            <if test="total_borrow!=null">
+                total_borrow = #{total_borrow},
+            </if>
+        </set>
+        where isbn=#{isbn}
+    </update>
+    <!--通过isbn获取总借阅量等图书信息-->
+    <select id="selectTotalBorrow" parameterType="String" resultType="Borrow">
+        select * from book_number where isbn=#{isbn}
+    </select>
+    <!--通过isbn与用户卡号删除借书记录-->
+    <delete id="deleteUserBorrow" parameterType="Borrow">
+        delete from user_borrow where isbn=#{isbn} and usercode =#{usercode}
+    </delete>
+    <!--读者查询借阅列表-->
+    <select id="selectReaderBookList" parameterType="user" resultType="BookLog">
+        SELECT
+        *
+        FROM user_borrow b
+        LEFT JOIN library_book l ON  l.isbn = b.isbn
+        LEFT JOIN book_class c ON c.isbn = b.isbn
+        LEFT JOIN book_number n ON n.isbn=b.isbn
+        LEFT JOIN book_room r ON r.isbn=b.isbn
+        where b.usercode=#{user_code}
+
+        <if test="start!=null and rows !=null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+</mapper>
